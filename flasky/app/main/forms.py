@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, TextAreaField, BooleanField, Selec
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError
 from flask.ext.pagedown.fields import PageDownField
-
+from ..models import Role, User
 
 
 class NameForm(Form):
