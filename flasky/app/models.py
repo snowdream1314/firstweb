@@ -7,6 +7,7 @@ from flask import current_app, request
 import hashlib
 from markdown import markdown
 import bleach
+from app.exceptions import ValidationError
 
 
 class Permission:
@@ -79,6 +80,16 @@ class User(UserMixin, db.Model):
                                 lazy='dynamic',
                                 cascade='all, delete-orphan')
     
+    def to_json(self):
+        json_user = {'url': url_for('api.get_post', id=self.id, _external=True),
+                    'username': self.username, 'member_since': self.member_since,
+                    'last_seen': self.last_seen,
+                    'posts': url_for('api.get_user_posts', id=self.id, _external=True),
+                    'followed_posts': url_for('api.get_user_followed_posts', id=self.id, _external=True),
+                    'post_count': self.posts.count()
+                    }
+        return json_user
+    
     @staticmethod
     def generate_fake(count=100):
         from sqlalchemy.exc import IntegrityError
@@ -121,7 +132,19 @@ class User(UserMixin, db.Model):
             self.avatar_hash = hashlib.md5(self.email.encode('utf-8')).hexdigest()
         self.follow(self)
     
-    
+    def generate_auth_token(self, expiration):
+        s = Serializer(current_app.config['SECRET_KEY'], expires_in=expiration)
+        return s.dumps({'id': self.id})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return None
+        return User.query.get(data['id'])
+
     @property
     def password(self):
         raise AttributeError('password is not a readable attribute')
@@ -253,6 +276,22 @@ class Post(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     body_html = db.Column(db.Text)
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
+    
+    def to_json(self):
+        json_post = {'url': url_for('api.get_post', id=self.id, _external=True),
+                    'body': self.body, 'body_html': self.timestamp,
+                    'author': url_for('api.get_user', id=self.author_id, _external=True),
+                    'comments': url_for('api.get_post_comments', id=self.id, _external=True),
+                    'comment_count': self.comments.count()
+                    }
+        return json_post
+    
+    @staticmethod
+    def from_json(json_post):
+        body = json_post.get('body')
+        if body is None or body == '':
+            raise ValidationError('post does not have a body')
+        return Post(body=body)
     
     @staticmethod
     def generate_fake(count=100):
