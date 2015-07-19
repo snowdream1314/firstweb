@@ -28,7 +28,7 @@ class FlaskClientTestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_home_page(self):
-        response = self.client.get(url_for('main.insex'))
+        response = self.client.get(url_for('main.index'))
         self.assertTrue('Stranger' in response.get_data(as_text=True))
     
     def test_register_and_login(self):

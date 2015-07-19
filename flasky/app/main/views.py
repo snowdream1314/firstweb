@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 路由
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from flask import render_template, session, redirect, url_for, current_app, flash, request, abort, make_response
 from .. import db
 from ..models import User, Permission, Post, Role, Comment
@@ -215,3 +223,15 @@ def moderate_disable(id):
     comment.disabled = True
     db.session.add(comment)
     return redirect(url_for('.moderate',page=request.args.get('page', 1, type=int)))
+
+
+#关闭服务器的路由（selenium测试）
+@main.route('/shutdown')
+def server_shutdown():
+    if not current_app.testing:
+        abort(404)
+    shutdown = request.environ.get('werkzeug.server.shutdown')
+    if not shutdown:
+        abort(500)
+    shutdown()
+    return 'Shutting down...'
