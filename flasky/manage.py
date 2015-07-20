@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 启动脚本
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 import os
 COV = None
 if os.environ.get('FLASK_COVERAGE'):
@@ -43,5 +51,31 @@ def test(coverage=False):
         COV.erase()
 
 
+#在请求分析器的监视下运行程序
+@manager.command
+def profile(length=25, profile_dir=None):
+    """Start the application under the code profile."""
+    from werkzeug.contrib.profiler import ProfilerMiddleware
+    app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[length],
+                                        profile_dir=profile_dir)
+    app.run()
+
+
+#部署命令
+@manager.command
+def deploy():
+    """Run deployment tasks."""
+    from flask.ext.migrate import upgrade
+    from app.models import Role, User
+    
+    #把数据库迁移到最新修订版本
+    upgrade()
+    
+    #创建用户角色
+    Role.insert_roles()
+    
+    #让所有用户都关注此用户
+    User.add_self_follows()
+    
 if __name__ == '__main__':
     manager.run()
