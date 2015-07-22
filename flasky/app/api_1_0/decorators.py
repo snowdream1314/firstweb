@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: permission_required修饰器
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from functools import wraps
 from flask import g
 from .errors import forbidden

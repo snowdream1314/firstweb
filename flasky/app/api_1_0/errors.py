@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: API 错误处理程序
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from flask import jsonify
 from app.exceptions import ValidationError
 from . import api

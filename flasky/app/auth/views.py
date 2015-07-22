@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 认证路由模块
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from flask import render_template, redirect, request, url_for, flash
 from flask.ext.login import login_user, logout_user, login_required, current_user
 from . import auth
@@ -7,14 +15,16 @@ from .. import db
 from ..email import send_email 
 
 
+#针对全局请求的钩子
 @auth.before_app_request
 def before_request():
 	if current_user.is_authenticated():
-		current_user.ping()
+		current_user.ping()#更新已登录用户的访问时间
 		if not current_user.confirmed and request.endpoint[:5] != 'auth.'and request.endpoint != 'static':
 			return redirect(url_for('auth.unconfirmed'))
 
 
+#登录
 @auth.route('/login',methods=['GET', 'POST'])
 def login():
 	form = LoginForm()
@@ -26,7 +36,8 @@ def login():
 		flash('Invalid username or password.')
 	return render_template('auth/login.html',form=form)
 
-
+    
+#登出
 @auth.route('/logout')
 @login_required
 def logout():
@@ -35,6 +46,7 @@ def logout():
 	return redirect(url_for('main.index'))
 
 
+#注册
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
 	form = RegistrationForm()
@@ -43,12 +55,15 @@ def register():
 		db.session.add(user)
 		db.session.commit()
 		token = user.generate_confirmation_token()
+        
+        #发送确认邮件
 		send_email(user.email, 'Confirm Your Account','auth/email/confirm', user=user, token=token)
 		flash('A confirmation email has been sent to you by email.')
 		return redirect(url_for('main.index'))
 	return render_template('auth/register.html', form=form)
 
-
+    
+#确认账户
 @auth.route('/confirm/<token>')
 @login_required
 def confirm(token):
@@ -61,6 +76,7 @@ def confirm(token):
 	return redirect(url_for('main.index'))
 
 
+#未确认账户
 @auth.route('/unconfirmed')
 def unconfirmed():
 	if current_user.is_anonymous() or current_user.confirmed:
@@ -68,6 +84,7 @@ def unconfirmed():
 	return render_template('auth/unconfirmed.html')
 
 
+#重新发送确认邮件
 @auth.route('/confirm')
 @login_required
 def resend_confirmation():
@@ -77,6 +94,7 @@ def resend_confirmation():
 	return redirect(url_for('main.index'))
 
 
+#更改密码
 @auth.route('/change-password',methods=['GET', 'POST'])
 @login_required
 def change_password():
@@ -92,6 +110,7 @@ def change_password():
 	return render_template('auth/password_change.html', form=form)
 
 
+#重设密码
 @auth.route('/Reset', methods=['GET', 'POST'])
 def reset_password_request():
 	if not current_user.is_anonymous():
@@ -109,6 +128,7 @@ def reset_password_request():
 	return render_template('auth/reset_password.html',form=form)
 
 
+#重设密码
 @auth.route('/Reset/<token>',methods=['GET', 'POST'])
 def Reset_password(token):
 	if not current_user.is_anonymous():
@@ -126,6 +146,7 @@ def Reset_password(token):
 	return render_template('auth/reset_password.html',form=form)
 
 
+#更改邮箱
 @auth.route('/change-email', methods=['GET', 'POST'])
 @login_required
 def change_email_request():
@@ -145,6 +166,7 @@ def change_email_request():
 	return render_template("auth/change_email.html", form=form)
 
 
+#更改邮箱
 @auth.route('/change-email/<token>')
 @login_required
 def change_email(token):

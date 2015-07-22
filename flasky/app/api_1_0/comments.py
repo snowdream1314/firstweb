@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 评论资源
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from flask import jsonify, request, g, url_for, current_app
 from .. import db
 from ..models import Post, Permission, Comment

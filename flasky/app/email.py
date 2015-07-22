@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 电子邮件支持
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from threading import Thread
 from flask import current_app, render_template
 from flask.ext.mail import Message

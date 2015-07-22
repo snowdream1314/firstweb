@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 用户资源
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from flask import jsonify, request, current_app, url_for
 from . import api
 from ..models import User, Post
@@ -8,7 +16,8 @@ def get_user(id):
     user = User.query.get_or_404(id)
     return jsonify(user.to_json())
 
-
+    
+#获取用户文章资源
 @api.route('/users/<int:id>/posts/')
 def get_user_posts(id):
     user = User.query.get_or_404(id)
@@ -31,6 +40,7 @@ def get_user_posts(id):
     })
 
 
+#获取所关注用户文章资源
 @api.route('/users/<int:id>/timeline/')
 def get_user_followed_posts(id):
     user = User.query.get_or_404(id)

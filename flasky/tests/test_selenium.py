@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 #-------------------------------------
-# Name: 使用Flask测试客户端编写的测试框架
+# Name: 使用Selenium运行测试的框架
 # Purpose: 
 # Author:
 # Date:

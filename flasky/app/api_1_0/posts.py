@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 文章资源处理程序
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from flask import jsonify, request, g, abort, url_for, current_app
 from .. import db
 from ..models import Post, Permission
@@ -6,8 +14,11 @@ from .decorators import permission_required
 from .errors import forbidden
 
 
+#GET请求
 @api.route('/posts/')
 def get_posts():
+
+    #分页文章资源
     page = request.args.get('page', 1, type=int)
     pagination = Post.query.paginate(
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
@@ -26,13 +37,13 @@ def get_posts():
         'count': pagination.total
     })
 
-
 @api.route('/posts/<int:id>')
 def get_post(id):
     post = Post.query.get_or_404(id)
     return jsonify(post.to_json())
 
 
+#POST请求
 @api.route('/posts/', methods=['POST'])
 @permission_required(Permission.WRITE_ARTICLES)
 def new_post():
@@ -43,7 +54,7 @@ def new_post():
     return jsonify(post.to_json()), 201, \
         {'Location': url_for('api.get_post', id=post.id, _external=True)}
 
-
+#PUT请求
 @api.route('/posts/<int:id>', methods=['PUT'])
 @permission_required(Permission.WRITE_ARTICLES)
 def edit_post(id):

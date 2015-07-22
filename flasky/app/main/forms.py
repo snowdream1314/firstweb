@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 表单模块
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import Required, Length, Email, Regexp
@@ -11,6 +19,7 @@ class NameForm(Form):
     submit = SubmitField('Submit')
 
 
+#资料编辑表单
 class EditProfileForm(Form):
     name = StringField('Real name', validators=[Length(0, 64)])
     location = StringField('Location', validators=[Length(0,64)])
@@ -18,6 +27,7 @@ class EditProfileForm(Form):
     submit = SubmitField('Submit')
 
 
+#管理员资料编辑表单
 class EditProfileAdminForm(Form):
     email = StringField('Email', validators=[Required(), Length(1,64), Email()])
     username = StringField('Username', validators=[Required(), Length(1,64),\
@@ -43,11 +53,13 @@ class EditProfileAdminForm(Form):
             raise ValidationError('Username already in use.')
 
 
+#文章表单
 class PostForm(Form):
-    body = PageDownField("What's on your mind?", validators=[Required()])
+    body = PageDownField("What's on your mind?", validators=[Required()])#启用Markdown
     submit = SubmitField('Submit')
 
 
+#评论输入表单
 class CommentForm(Form):
     body = StringField('', validators=[Required()])
     submit = SubmitField('Submit')

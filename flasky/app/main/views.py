@@ -1,6 +1,6 @@
 #-*-coding:utf-8-*-
 #-------------------------------------
-# Name: 路由
+# Name: 蓝本路由
 # Purpose: 
 # Author:
 # Date:
@@ -17,6 +17,7 @@ from ..decorators import admin_required, permission_required
 from flask.ext.sqlalchemy import get_debug_queries
 
 
+#首页路由
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = PostForm()
@@ -29,22 +30,25 @@ def index():
     if current_user.is_authenticated():
         show_followed = bool(request.cookies.get('show_followed',''))
     if show_followed:
-        query = current_user.followed_posts
+        query = current_user.followed_posts#显示所关注用户的文章
     else:
-        query = Post.query
+        query = Post.query#显示所有文章
     pagination = query.order_by(Post.timestamp.desc()).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'], error_out=False)
+                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'], error_out=False)#分页显示文章
     posts = pagination.items
     return render_template('index.html',form=form, posts=posts, show_followed=show_followed, pagination=pagination)
 
-    
+
+#用户资料页面路由    
 @main.route('/user/<username>')
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
+    #显示文章
     posts = user.posts.order_by(Post.timestamp.desc()).all()
     return render_template('user.html', user=user, posts=posts)
 
 
+#资料编辑路由
 @main.route('/edit-profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
@@ -62,6 +66,7 @@ def edit_profile():
     return render_template('edit_profile.html', form=form)
 
 
+#管理员资料编辑路由
 @main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -89,10 +94,11 @@ def edit_profile_admin(id):
     return render_template('edit_profile.html', form=form, user=user)
     
 
+#文章固定链接
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
     post = Post.query.get_or_404(id)
-    form = CommentForm()
+    form = CommentForm()#支持评论
     if form.validate_on_submit():
         comment = Comment(body=form.body.data, post=post, author=current_user._get_current_object())
         db.session.add(comment)
@@ -107,6 +113,7 @@ def post(id):
     return render_template('post.html',posts=[post], form=form, comments=comments, pagination=pagination)
     
 
+#编辑博客文章
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
@@ -123,9 +130,10 @@ def edit(id):
     return render_template('edit_post.html', form=form)
 
 
+#关注路由
 @main.route('/follow/<username>')
 @login_required
-
+@permission_required(Permission.FOLLOW)
 def follow(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
@@ -139,9 +147,10 @@ def follow(username):
     return redirect(url_for('.user', username=username))
 
 
+#取消关注
 @main.route('/unfollow/<username>')
 @login_required
-
+@permission_required(Permission.FOLLOW)
 def unfollow(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
@@ -155,6 +164,7 @@ def unfollow(username):
     return redirect(url_for('.user', username=username))
 
 
+#关注者路由
 @main.route('/followers/<username>')
 def followers(username):
     user = User.query.filter_by(username=username).first()
@@ -167,6 +177,7 @@ def followers(username):
     return render_template('followers.html', user=user, title="Followers of", endpoint='.followers', pagination=pagination, follows=follows)
 
 
+#被关注路由
 @main.route('/followed-by/<username>')
 def followed_by(username):
     user = User.query.filter_by(username=username).first()
@@ -179,6 +190,7 @@ def followed_by(username):
     return render_template('followers.html', user=user, title="Followed by", endpoint='.followed_by', pagination=pagination, follows=follows)
 
 
+#查询所有文章
 @main.route('/all')
 @login_required
 def show_all():
@@ -186,7 +198,7 @@ def show_all():
     resp.set_cookie('show_followed', '', max_age=30*24*60*60)
     return resp
 
-
+#查询所关注用户的文章
 @main.route('/followed')
 @login_required
 def show_followed():
@@ -195,6 +207,7 @@ def show_followed():
     return resp
 
 
+#管理评论
 @main.route('/moderate')
 @login_required
 @permission_required(Permission.MODERATE_COMMENTS)
@@ -206,6 +219,7 @@ def moderate():
     return render_template('moderate.html', comments=comments, pagination=pagination, page=page)
 
 
+#评论启用
 @main.route('/moderate/enable/<int:id>')
 @login_required
 @permission_required(Permission.MODERATE_COMMENTS)
@@ -216,6 +230,7 @@ def moderate_enable(id):
     return redirect(url_for('.moderate',page=request.args.get('page', 1, type=int)))
 
 
+#评论禁用
 @main.route('/moderate/disable/<int:id>')
 @login_required
 @permission_required(Permission.MODERATE_COMMENTS)

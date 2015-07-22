@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 蓝本错误处理程序
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from flask import render_template, request, jsonify
 from . import main
 

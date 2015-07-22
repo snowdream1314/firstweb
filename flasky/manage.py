@@ -6,11 +6,12 @@
 # Date:
 #-------------------------------------
 
+#覆盖检测
 import os
 COV = None
 if os.environ.get('FLASK_COVERAGE'):
     import coverage
-    COV = coverage.coverage(branch=True, include='app/*')
+    COV = coverage.coverage(branch=True, include='app/*')#启动覆盖检测引擎
     COV.start()
 
 from app import create_app, db
@@ -23,12 +24,14 @@ manager = Manager(app)
 migrate = Migrate(app, db)
     
 
+#定义shell上下文
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role, Permission=Permission, Post=Post)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 
 
+#启动单元测试
 @manager.command
 def test(coverage=False):
     """Run the unit tests."""
@@ -39,7 +42,7 @@ def test(coverage=False):
     import unittest
     tests = unittest.TestLoader().discover('tests')
     unittest.TextTestRunner(verbosity=2).run(tests)
-    if COV:
+    if COV:#覆盖检测
         COV.stop()
         COV.save()
         print('Coverage Summary:')

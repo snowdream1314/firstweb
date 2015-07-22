@@ -10,6 +10,7 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
+#通用配置
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
@@ -32,19 +33,20 @@ class Config:
         pass
 
 
+#开发配置
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
-
+#测试配置
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
-    WTF_CSRF_ENABLED = False
+    WTF_CSRF_ENABLED = False#禁用CSRF保护
 
-
+#生产环境配置
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data.sqlite')
@@ -73,7 +75,7 @@ class ProductionConfig(Config):
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
 
-
+#注册配置
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,

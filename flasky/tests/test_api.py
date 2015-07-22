@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 使用Flask测试客户端测试REST API
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 import unittest
 import json
 import re

@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 自定义修饰器
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 from functools import wraps
 from flask import abort
 from flask.ext.login import current_user

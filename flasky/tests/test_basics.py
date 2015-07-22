@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 单元测试
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 import unittest
 from flask import current_app
 from app import create_app, db

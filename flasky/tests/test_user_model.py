@@ -1,3 +1,11 @@
+#-*-coding:utf-8-*-
+#-------------------------------------
+# Name: 用户模型测试
+# Purpose: 
+# Author:
+# Date:
+#-------------------------------------
+
 import unittest
 import time
 from datetime import datetime
@@ -6,7 +14,7 @@ from app.models import User, AnonymousUser, Role, Permission, Follow
 
 
 class UserModelTestCase(unittest.TestCase):
-    def setUp(self):
+    def setUp(self):#创建测试环境
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
@@ -18,6 +26,8 @@ class UserModelTestCase(unittest.TestCase):
         db.drop_all()
         self.app_context.pop()
 
+    
+    #密码散列化测试
     def test_password_setter(self):
         u = User(password='cat')
         self.assertTrue(u.password_hash is not None)
@@ -37,6 +47,7 @@ class UserModelTestCase(unittest.TestCase):
         u2 = User(password='cat')
         self.assertTrue(u.password_hash != u2.password_hash)
 
+        
     def test_valid_confirmation_token(self):
         u = User(password='cat')
         db.session.add(u)
@@ -106,7 +117,9 @@ class UserModelTestCase(unittest.TestCase):
         token = u2.generate_email_change_token('john@example.com')
         self.assertFalse(u2.change_email(token))
         self.assertTrue(u2.email == 'susan@example.org')
-
+    
+    
+    #角色和权限的单元测试
     def test_roles_and_permissions(self):
         u = User(email='john@example.com', password='cat')
         self.assertTrue(u.can(Permission.WRITE_ARTICLES))
@@ -116,6 +129,8 @@ class UserModelTestCase(unittest.TestCase):
         u = AnonymousUser()
         self.assertFalse(u.can(Permission.FOLLOW))
 
+    
+    #登录时间
     def test_timestamps(self):
         u = User(password='cat')
         db.session.add(u)
@@ -133,7 +148,8 @@ class UserModelTestCase(unittest.TestCase):
         last_seen_before = u.last_seen
         u.ping()
         self.assertTrue(u.last_seen > last_seen_before)
-
+    
+    #头像
     def test_gravatar(self):
         u = User(email='john@example.com', password='cat')
         with self.app.test_request_context('/'):
@@ -150,7 +166,8 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue('d=retro' in gravatar_retro)
         self.assertTrue('https://secure.gravatar.com/avatar/' +
                         'd4c74594d841139328695756648b6bd6' in gravatar_ssl)
-
+    
+    #关注功能
     def test_follows(self):
         u1 = User(email='john@example.com', password='cat')
         u2 = User(email='susan@example.org', password='dog')
